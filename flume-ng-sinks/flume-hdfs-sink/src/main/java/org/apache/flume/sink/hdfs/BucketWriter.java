@@ -224,10 +224,8 @@ class BucketWriter {
          */
         long counter = 0;
         if (timestamp == 0){
-          System.out.println("//........................logic one");
           counter = fileExtensionCounter.incrementAndGet();
         }else {
-          System.out.println("//........................logic two");
           counter = timestamp;
         }
 
