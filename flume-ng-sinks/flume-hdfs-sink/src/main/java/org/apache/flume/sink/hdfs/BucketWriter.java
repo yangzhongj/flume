@@ -21,6 +21,7 @@ package org.apache.flume.sink.hdfs;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.PrivilegedExceptionAction;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -199,7 +200,7 @@ class BucketWriter {
    * @throws IOException
    * @throws InterruptedException
    */
-  private void open() throws IOException, InterruptedException {
+  private void open(long timestamp) throws IOException, InterruptedException {
     if ((filePath == null) || (writer == null)) {
       throw new IOException("Invalid file settings");
     }
@@ -217,9 +218,20 @@ class BucketWriter {
       checkAndThrowInterruptedException();
 
       try {
-        long counter = fileExtensionCounter.incrementAndGet();
 
-        String fullFileName = fileName + "." + counter;
+        /**
+         * modify timestamp
+         */
+        long counter = 0;
+        if (timestamp == 0){
+          System.out.println("//........................logic one");
+          counter = fileExtensionCounter.incrementAndGet();
+        }else {
+          System.out.println("//........................logic two");
+          counter = timestamp;
+        }
+
+        String fullFileName = fileName + "_" + counter;
 
         if (fileSuffix != null && fileSuffix.length() > 0) {
           fullFileName += fileSuffix;
@@ -506,12 +518,23 @@ class BucketWriter {
     // If the bucket writer was closed due to roll timeout or idle timeout,
     // force a new bucket writer to be created. Roll count and roll size will
     // just reuse this one
+    long timestamp = 0;
     if (!isOpen) {
       if (closed) {
         throw new BucketClosedException("This bucket writer was closed and " +
           "this handle is thus no longer valid");
       }
-      open();
+
+      /**
+       * add timestamp by agent client for HdfsfileName
+       */
+
+      Map<String,String> map= event.getHeaders();
+      if (map.containsKey("timestamp")){
+          timestamp = Long.valueOf(map.get("timestamp"));
+      }
+      System.out.println("//...............................isOpen");
+      open(timestamp);
     }
 
     // check if it's time to rotate the file
@@ -536,8 +559,9 @@ class BucketWriter {
       }
 
       if (doRotate) {
+        System.out.println("//................................doRotate");
         close();
-        open();
+        open(timestamp);
       }
     }
 
