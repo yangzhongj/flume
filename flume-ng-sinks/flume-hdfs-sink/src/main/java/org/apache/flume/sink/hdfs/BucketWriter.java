@@ -531,7 +531,6 @@ class BucketWriter {
       if (map.containsKey("timestamp")){
           timestamp = Long.valueOf(map.get("timestamp"));
       }
-      System.out.println("//...............................isOpen");
       open(timestamp);
     }
 
@@ -557,7 +556,6 @@ class BucketWriter {
       }
 
       if (doRotate) {
-        System.out.println("//................................doRotate");
         close();
         open(timestamp);
       }
