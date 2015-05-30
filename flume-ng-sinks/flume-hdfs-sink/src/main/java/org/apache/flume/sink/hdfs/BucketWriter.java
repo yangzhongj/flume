@@ -531,6 +531,7 @@ class BucketWriter {
       if (map.containsKey("timestamp")){
           timestamp = Long.valueOf(map.get("timestamp"));
       }
+      //modify by yang.zhongjie
       open(timestamp);
     }
 
@@ -557,6 +558,7 @@ class BucketWriter {
 
       if (doRotate) {
         close();
+        //modify by yang.zhongjie
         open(timestamp);
       }
     }
